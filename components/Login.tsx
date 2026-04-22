@@ -57,7 +57,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, users }) => {
         <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-slate-100 p-10 space-y-8 animate-in fade-in zoom-in duration-300">
           <div className="text-center space-y-4">
             <div className="inline-flex p-4 bg-sky-50 rounded-3xl text-sky-500 shadow-inner">
-              <img src="/LogoYDCTLC.jpg" alt="Logo YDCTLC" className="h-20 w-auto object-contain mix-blend-multiply" />
+              <img src="/Logo YDCT Son La.png" alt="Logo YDCT" className="h-20 w-auto object-contain mix-blend-multiply" />
             </div>
             <div>
               <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">MedFlow Login</h1>

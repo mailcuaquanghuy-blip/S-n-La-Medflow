@@ -17,7 +17,6 @@ export const DEPARTMENTS: Department[] = [
   { id: 'dept_ngoai', name: 'Khoa Ngoại', type: DepartmentType.CLINICAL },
   { id: 'dept_lao', name: 'Khoa Lão', type: DepartmentType.CLINICAL },
   { id: 'dept_ungbuou', name: 'Khoa Ung Bướu', type: DepartmentType.CLINICAL },
-  { id: 'dept_nhi', name: 'Khoa Nhi', type: DepartmentType.CLINICAL },
   { id: 'dept_chamcuu', name: 'Khoa Châm Cứu', type: DepartmentType.CLINICAL },
   { id: 'dept_phcn', name: 'Phục hồi chức năng', type: DepartmentType.SUPPORT },
   { id: 'dept_xetnghiem', name: 'Xét nghiệm', type: DepartmentType.SUPPORT },

@@ -1265,7 +1265,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-4">
                   <button onClick={() => { setCurrentDept(null); setActiveTab('PATIENT_RECORDS'); }} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"><Home size={20} /></button>
                   <div className="h-6 w-px bg-slate-200"></div>
-                  <img src="/LogoYDCTLC.jpg" alt="Logo" className="h-8 w-auto object-contain mix-blend-multiply" />
+                  <img src="/Logo YDCT Son La.png" alt="Logo" className="h-8 w-auto object-contain mix-blend-multiply" />
                   {currentDept ? (
                     <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">{currentDept.name}</h2>
                   ) : (
