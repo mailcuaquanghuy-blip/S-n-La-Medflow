@@ -19,7 +19,7 @@ import { BackupManager } from './components/BackupManager';
 import { Button } from './components/Button';
 import { DateTimePicker } from './components/DateTimePicker';
 import { DateInput } from './components/DateInput';
-import { Home, Building2, Table2, FileText, CalendarPlus, AlertCircle, LogOut, ShieldCheck, User, UserCog, X, Briefcase, Check, Save, PieChart, Database } from 'lucide-react';
+import { Home, Building2, Table2, FileText, CalendarPlus, AlertCircle, LogOut, ShieldCheck, User, UserCog, X, Briefcase, Check, Save, PieChart, Database, Activity } from 'lucide-react';
 
 // Firebase imports
 import { db, auth } from './firebase';
@@ -1265,7 +1265,9 @@ const App: React.FC = () => {
               <div className="flex items-center gap-4">
                   <button onClick={() => { setCurrentDept(null); setActiveTab('PATIENT_RECORDS'); }} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"><Home size={20} /></button>
                   <div className="h-6 w-px bg-slate-200"></div>
-                  <img src="/Logo YDCT Son La.png" alt="Logo" className="h-8 w-auto object-contain mix-blend-multiply" />
+                  <div className="text-sky-500">
+                    <Activity size={28} strokeWidth={2.5} />
+                  </div>
                   {currentDept ? (
                     <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">{currentDept.name}</h2>
                   ) : (

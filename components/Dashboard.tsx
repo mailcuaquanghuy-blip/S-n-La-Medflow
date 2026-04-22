@@ -68,8 +68,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ departments, onSelectDepar
         
         <div className="flex justify-between items-start">
            <div className="flex items-center gap-4">
-              <div className="p-2 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm">
-                 <img src="/Logo YDCT Son La.png" alt="Logo YDCT" className="h-10 w-auto object-contain mix-blend-multiply" />
+              <div className="p-2 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm text-sky-500">
+                 <Activity size={40} strokeWidth={1.5} />
               </div>
               <div>
                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Hệ thống MedFlow</p>
