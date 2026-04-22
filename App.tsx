@@ -586,15 +586,20 @@ const App: React.FC = () => {
     }
   };
 
-  const handleCopyToDateRange = async (patientId: string, sourceDate: string, startDate: string, endDate: string) => {
+  const handleCopyToDateRange = async (patientId: string, sourceDate: string, startDate: string, endDate: string, selectedApptIds?: string[]) => {
     if (!db || !canEditCurrentDept) return;
     
     // Mỗi khoa chỉ được sao chép thủ thuật của riêng mình
-    const sourceAppts = appointments.filter(a => 
+    let sourceAppts = appointments.filter(a => 
       a.patientId === patientId && 
       a.date === sourceDate && 
       (currentUser?.role === UserRole.ADMIN || a.deptId === currentDept?.id)
     );
+    
+    // Filter by selected appointments if provided
+    if (selectedApptIds && selectedApptIds.length > 0) {
+      sourceAppts = sourceAppts.filter(a => selectedApptIds.includes(a.id));
+    }
     
     if (sourceAppts.length === 0) return;
 
@@ -605,6 +610,26 @@ const App: React.FC = () => {
     while (current <= end) {
       dateRange.push(current.toISOString().split('T')[0]);
       current.setDate(current.getDate() + 1);
+    }
+
+    // Check for duplicate procedures on target dates
+    const duplicateWarnings: string[] = [];
+    dateRange.forEach(targetDate => {
+      if (targetDate === sourceDate) return;
+      const targetDateAppts = appointments.filter(a => a.patientId === patientId && a.date === targetDate);
+      
+      sourceAppts.forEach(source => {
+        const isDuplicate = targetDateAppts.some(a => a.procedureId === source.procedureId);
+        if (isDuplicate) {
+          const procName = procedures.find(p => p.id === source.procedureId)?.name || 'Thủ thuật';
+          duplicateWarnings.push(`Ngày ${targetDate}: Đã có "${procName}"`);
+        }
+      });
+    });
+
+    if (duplicateWarnings.length > 0) {
+      alert(`LỖI TRÙNG LẶP:\nKhông thể sao chép vì các thủ thuật sau đã tồn tại ở ngày đích:\n${duplicateWarnings.slice(0, 10).join('\n')}${duplicateWarnings.length > 10 ? '\n...' : ''}\n\nVui lòng bỏ chọn các thủ thuật này hoặc xóa ở ngày đích trước khi sao chép.`);
+      return;
     }
 
     // Kiểm tra ca máy cho các thủ thuật chạy theo ca máy

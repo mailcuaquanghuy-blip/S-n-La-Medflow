@@ -1,13 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './Button';
 import { Calendar, X, Copy, Info, CheckCircle2 } from 'lucide-react';
 import { DateInput } from './DateInput';
+import { Appointment, Procedure } from '../types';
 
 interface CopyRangeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (startDate: string, endDate: string) => void;
+  onConfirm: (startDate: string, endDate: string, selectedApptIds?: string[]) => void;
   sourceDate: string;
   title?: string;
   subtitle?: string;
@@ -15,6 +16,8 @@ interface CopyRangeModalProps {
   patientName?: string;
   procedureCount?: number;
   itemLabel?: string;
+  appointmentsToCopy?: Appointment[];
+  procedures?: Procedure[];
 }
 
 export const CopyRangeModal: React.FC<CopyRangeModalProps> = ({
@@ -28,6 +31,8 @@ export const CopyRangeModal: React.FC<CopyRangeModalProps> = ({
   patientName,
   procedureCount,
   itemLabel = "Bệnh nhân",
+  appointmentsToCopy = [],
+  procedures = []
 }) => {
   const [startDate, setStartDate] = useState(new Date(sourceDate).toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(() => {
@@ -35,6 +40,17 @@ export const CopyRangeModal: React.FC<CopyRangeModalProps> = ({
     nextDay.setDate(nextDay.getDate() + 1);
     return nextDay.toISOString().split('T')[0];
   });
+  const [selectedApptIds, setSelectedApptIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedApptIds(appointmentsToCopy.map(a => a.id));
+      setStartDate(new Date(sourceDate).toISOString().split('T')[0]);
+      const nextDay = new Date(sourceDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      setEndDate(nextDay.toISOString().split('T')[0]);
+    }
+  }, [isOpen, sourceDate, appointmentsToCopy]);
 
   if (!isOpen) return null;
 
@@ -44,13 +60,27 @@ export const CopyRangeModal: React.FC<CopyRangeModalProps> = ({
       alert("Ngày bắt đầu không được lớn hơn ngày kết thúc");
       return;
     }
-    onConfirm(startDate, endDate);
+    if (appointmentsToCopy.length > 0 && selectedApptIds.length === 0) {
+      alert("Vui lòng chọn ít nhất một thủ thuật để sao chép.");
+      return;
+    }
+    onConfirm(startDate, endDate, appointmentsToCopy.length > 0 ? selectedApptIds : undefined);
+  };
+
+  const getProcedureName = (procId: string) => {
+    return procedures.find(p => p.id === procId)?.name || 'Thủ thuật';
+  };
+
+  const toggleApptSelection = (id: string) => {
+    setSelectedApptIds(prev => 
+      prev.includes(id) ? prev.filter(aId => aId !== id) : [...prev, id]
+    );
   };
 
   return (
     <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="bg-indigo-600 p-6 text-white flex justify-between items-center">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+        <div className="bg-indigo-600 p-6 text-white flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white/20 rounded-xl">
                 <Copy size={20} />
@@ -65,7 +95,7 @@ export const CopyRangeModal: React.FC<CopyRangeModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto flex-1">
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
             {patientName && <p className="text-xs text-slate-500 font-bold">{itemLabel}: <span className="text-slate-800">{patientName}</span></p>}
             <p className="text-xs text-slate-500 font-bold">Nguồn: <span className="text-indigo-600">Ngày {new Date(sourceDate).toLocaleDateString('vi-VN')}</span> {procedureCount !== undefined && `(${procedureCount} mục)`}</p>
@@ -77,7 +107,7 @@ export const CopyRangeModal: React.FC<CopyRangeModalProps> = ({
                 <Calendar size={12} /> Từ ngày
               </label>
               <DateInput 
-                className="w-full p-3 border-2 border-slate-100 rounded-xl font-bold text-slate-800 outline-none focus:border-indigo-500 transition-all"
+                className="w-full p-3 border-2 border-slate-100 rounded-xl font-bold text-slate-800 outline-none focus:border-indigo-500 transition-all z-50"
                 value={startDate}
                 onChange={val => setStartDate(val)}
               />
@@ -87,12 +117,34 @@ export const CopyRangeModal: React.FC<CopyRangeModalProps> = ({
                 <Calendar size={12} /> Đến ngày
               </label>
               <DateInput 
-                className="w-full p-3 border-2 border-slate-100 rounded-xl font-bold text-slate-800 outline-none focus:border-indigo-500 transition-all"
+                className="w-full p-3 border-2 border-slate-100 rounded-xl font-bold text-slate-800 outline-none focus:border-indigo-500 transition-all z-50"
                 value={endDate}
                 onChange={val => setEndDate(val)}
               />
             </div>
           </div>
+
+          {appointmentsToCopy.length > 0 && (
+            <div className="space-y-2">
+               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Chọn thủ thuật để sao chép</label>
+               <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
+                 {appointmentsToCopy.map(appt => (
+                   <label key={appt.id} className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors">
+                     <input 
+                       type="checkbox" 
+                       checked={selectedApptIds.includes(appt.id)}
+                       onChange={() => toggleApptSelection(appt.id)}
+                       className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
+                     />
+                     <div className="flex-1 min-w-0">
+                       <p className="text-sm font-bold text-slate-800 truncate">{getProcedureName(appt.procedureId)}</p>
+                       <p className="text-xs text-slate-500">{appt.startTime} - {appt.endTime}</p>
+                     </div>
+                   </label>
+                 ))}
+               </div>
+            </div>
+          )}
 
           <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl">
              <Info size={16} className="text-amber-500 shrink-0 mt-0.5" />
@@ -101,7 +153,7 @@ export const CopyRangeModal: React.FC<CopyRangeModalProps> = ({
              </p>
           </div>
 
-          <div className="pt-2 flex gap-3">
+          <div className="pt-2 flex gap-3 shrink-0">
             <Button type="button" variant="secondary" onClick={onClose} className="flex-1 h-12 rounded-xl">HỦY</Button>
             <Button type="submit" className="flex-[2] h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200">
                 THỰC HIỆN COPY

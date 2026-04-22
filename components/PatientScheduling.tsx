@@ -30,7 +30,7 @@ interface PatientSchedulingProps {
   onBookAppointment: (patientId: string, appointment?: Appointment) => void;
   onUpdateAppointment: (appointment: Appointment) => void;
   onDeleteAppointment: (apptId: string) => void;
-  onCopyToDateRange: (patientId: string, sourceDate: string, startDate: string, endDate: string) => void;
+  onCopyToDateRange: (patientId: string, sourceDate: string, startDate: string, endDate: string, selectedApptIds?: string[]) => void;
   onRecheckConflicts?: () => void;
   onAddShift: (shift: Omit<MachineShift, 'id'>) => void;
   onUpdateShift: (id: string, shift: Partial<MachineShift>, updateLinkedAppointments: boolean) => void;
@@ -1111,13 +1111,15 @@ export const PatientScheduling: React.FC<PatientSchedulingProps> = ({
             <CopyRangeModal 
               isOpen={isCopyModalOpen} 
               onClose={() => setIsCopyModalOpen(false)} 
-              onConfirm={(start, end) => {
-                onCopyToDateRange(selectedPatient.id, currentDate, start, end);
+              onConfirm={(start, end, selectedIds) => {
+                onCopyToDateRange(selectedPatient.id, currentDate, start, end, selectedIds);
                 setIsCopyModalOpen(false);
               }}
               sourceDate={currentDate}
               patientName={selectedPatient.name}
               procedureCount={patientAppointments.length}
+              appointmentsToCopy={patientAppointments}
+              procedures={procedures}
             />
 
             {/* Save Template Modal */}
